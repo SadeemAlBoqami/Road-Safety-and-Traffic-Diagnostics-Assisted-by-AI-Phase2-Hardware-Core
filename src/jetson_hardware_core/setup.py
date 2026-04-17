@@ -33,6 +33,7 @@ setup(
             'prediction_node = jetson_hardware_core.prediction_node:main',
             'risk_assessment_node = jetson_hardware_core.risk_assessment_node:main',
             'collision_decision_node = jetson_hardware_core.collision_decision_node:main',
+            'display_node = jetson_hardware_core.display_node:main',
         ],
     },
 )
