@@ -84,4 +84,12 @@ def generate_launch_description():
             name='collision_decision_node',
             output='screen'
         ),
+        
+        # 8. عقدة شاشة التنبيه
+        Node(
+            package='jetson_hardware_core',
+            executable='display_node',
+            name='display_node',
+            output='screen'
+        ),
     ])
