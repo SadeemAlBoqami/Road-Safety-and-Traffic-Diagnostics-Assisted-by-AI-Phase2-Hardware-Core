@@ -1,0 +1,46 @@
+# --- ROS 2 & Build Files ---
+install/
+build/
+log/
+.catkin_tools/
+**/_setup_util.py
+**/setup.sh
+**/local_setup.sh
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# --- AI Models (Large Binary Files) ---
+# ملاحظة: إذا كنتِ ستستخدمين Git LFS، يمكنكِ إزالة هذه الأسطر
+*.engine
+*.onnx
+*.weights
+*.pth
+*.h5
+*.keras
+# استثناء: إذا أردتِ رفع ملف صغير للتجربة
+# !models/small_sample.onnx
+
+# --- OS Specific ---
+.DS_Store
+.DS_Store?
+._*
+Thmubs.db
+desktop.ini
+
+# --- Editors & IDEs ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs & Performance ---
+*.log
+*.tfevents.*
