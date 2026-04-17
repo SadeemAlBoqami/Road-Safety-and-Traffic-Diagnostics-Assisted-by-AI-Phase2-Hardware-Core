@@ -27,7 +27,9 @@ class RiskAssessmentNode(Node):
             # استخراج المسافة من النص القادم من Fusion
             # "Obj:Vehicle|Dist:5.50|Angle:12.5"
             parts = msg.data.split('|')
-            current_dist = float(parts[1].split(':')[1])
+            dist_raw = parts[1].split(':')[1]        # سيأخذ "5.50m"
+            dist_clean = dist_raw.replace('m', '')   # سيحذف 'm' لتصبح "5.50"
+            current_dist = float(dist_clean.strip()) # التحويل الآمن لرقم
             current_time = self.get_clock().now().nanoseconds / 1e9
 
             if self.last_dist is not None:
