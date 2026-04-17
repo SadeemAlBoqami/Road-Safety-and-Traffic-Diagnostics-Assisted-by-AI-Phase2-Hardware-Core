@@ -18,15 +18,12 @@ env/
 .env
 
 # --- AI Models (Large Binary Files) ---
-# ملاحظة: إذا كنتِ ستستخدمين Git LFS، يمكنكِ إزالة هذه الأسطر
 *.engine
 *.onnx
 *.weights
 *.pth
 *.h5
 *.keras
-# استثناء: إذا أردتِ رفع ملف صغير للتجربة
-# !models/small_sample.onnx
 
 # --- OS Specific ---
 .DS_Store
