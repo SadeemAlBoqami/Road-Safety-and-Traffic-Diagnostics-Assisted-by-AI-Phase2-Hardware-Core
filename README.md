@@ -1,1 +1,1 @@
-# Road-Safety-and-Traffic-Diagnostics-Assisted-by-AI-Phase2-Hardware-Core
+# Road Safety and Traffic Diagnostics Assisted by AI-Phase2 (Hardware Core)
