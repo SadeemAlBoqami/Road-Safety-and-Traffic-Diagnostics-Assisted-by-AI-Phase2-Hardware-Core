@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
-from std_msgs.msg import String, Float32
+from std_msgs.msg import String, Float32, Int32  # أضيفي Int32
 import cv2
 import numpy as np
 import time
@@ -9,6 +9,7 @@ import threading
 import os
 import signal
 from datetime import datetime
+
 
 # =============================================================================
 # IntegratedDisplayNode — Road Safety AI Dashboard
@@ -69,6 +70,7 @@ class DashState:
         self.danger_pct   = 0.0
         self.ttc          = 0.0
         self.objects_count = 0
+        self.v2x_code = 0  # 0 تعني لا يوجد تنبيه
 
     def update(self, **kwargs):
         with self._lock:
@@ -99,6 +101,9 @@ class DisplayNode(Node):
                                  self._fusion_cb, 10)
 
         self.get_logger().info("ROS2 subscriptions active.")
+        
+        self.create_subscription(Int32, '/v2x_alerts', 
+                         lambda m: state.update(v2x_code=m.data), 10)
 
     def _fusion_cb(self, msg):
         n = len(msg.data.strip().split('\n')) if msg.data.strip() else 0
@@ -271,6 +276,11 @@ def render_frame(decision, danger_pct, ttc, objects_count, btn_hover):
         _centered(f, lbl, tx + tw_//2, R3_Y + 22, 0.48, DIM)
         vs = _fit_text(val, tw_ - 16, FT_MONO, max_scale=0.70, min_scale=0.28, thick=1)
         _centered(f, val, tx + tw_//2, R3_Y + R3_H - 10, vs, vc, FT_MONO, thick=1)
+
+    # أضيفي هذا المنطق قبل إرجاع الفريم (return f)
+    if v2x_code == 1:
+        cv2.rectangle(f, (0, 0), (CANVAS_W, 40), (0, 0, 200), -1)
+        _centered(f, "V2X ALERT: ACCIDENT AHEAD!", CANVAS_W//2, 30, 0.7, WHITE, thick=2)
 
     return f
 
