@@ -79,8 +79,9 @@ class DashState:
 
     def snapshot(self):
         with self._lock:
+        # تأكدي من وجود self.v2x_code هنا في النهاية
             return (self.decision, self.danger_pct,
-                    self.ttc, self.objects_count)
+                    self.ttc, self.objects_count, self.v2x_code)
 
 
 # =============================================================================
@@ -172,7 +173,8 @@ def _status_colors(decision, danger_pct):
 # =============================================================================
 # render_frame — builds one complete frame from current state snapshot
 # =============================================================================
-def render_frame(decision, danger_pct, ttc, objects_count, btn_hover):
+def render_frame(decision, danger_pct, ttc, objects_count, v2x_code, btn_hover):
+    # الآن سيصبح v2x_code معرفاً داخل هذه الدالة ولن يظهر الخطأ
     W, H = CANVAS_W, CANVAS_H
     f = np.full((H, W, 3), BG, dtype=np.uint8)
 
@@ -321,8 +323,12 @@ def main(args=None):
     # ── Render loop ───────────────────────────────────────────────────────────
     try:
         while rclpy.ok():
-            decision, danger_pct, ttc, objects_count = state.snapshot()
-            frame = render_frame(decision, danger_pct, ttc, objects_count, btn_hover)
+    # 1. استلام القيمة من الـ snapshot (تأكدي أن snapshot ترجع 5 قيم الآن)
+            decision, danger_pct, ttc, objects_count, v2x_val = state.snapshot()
+    
+    # 2. تمرير القيمة الخامسة (v2x_val) إلى دالة الرسم
+            frame = render_frame(decision, danger_pct, ttc, objects_count, v2x_val, btn_hover)
+    
             cv2.imshow(WIN_NAME, frame)
 
             # waitKey(33) = ~30fps cap — يستقبل keyboard input بشكل موثوق
