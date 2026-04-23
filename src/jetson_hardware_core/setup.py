@@ -34,6 +34,7 @@ setup(
             'risk_assessment_node = jetson_hardware_core.risk_assessment_node:main',
             'collision_decision_node = jetson_hardware_core.collision_decision_node:main',
             'display_node = jetson_hardware_core.display_node:main',
+            'v2x_manager.py = v2x_diagnostics.v2x_manager:main',
         ],
     },
 )
