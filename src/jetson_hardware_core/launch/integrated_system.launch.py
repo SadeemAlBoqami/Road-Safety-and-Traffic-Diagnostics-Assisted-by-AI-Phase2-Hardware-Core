@@ -92,4 +92,12 @@ def generate_launch_description():
             name='display_node',
             output='screen'
         ),
+
+        # 9. عقدة مدير الـ V2X (التي تربط الـ ESP32 بالنظام)
+        Node(
+            package='v2x_diagnostics',
+            executable='v2x_manager.py', # تأكدي أن هذا هو الاسم في setup.py
+            name='v2x_manager_node',
+            output='screen'
+        ),
     ])
