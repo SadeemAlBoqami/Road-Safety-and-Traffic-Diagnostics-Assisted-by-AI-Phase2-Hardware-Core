@@ -313,6 +313,6 @@ Differences between the CARLA simulation environment and the physical robot requ
 <div align="center">
 
 **Phase 2 of 2 — Hardware Deployment**  
-🔗 Simulation Repo: [carla-simulation-pipeline](https://github.com/SadeemAlBoqami/Road-Safety-and-Traffic-Diagnostics-Assisted-by-AI-Phase2-CARLA-Simulation)
+🔗 Simulation Repo: [carla-simulation-core](https://github.com/SadeemAlBoqami/Road-Safety-and-Traffic-Diagnostics-Assisted-by-AI-Phase2-CARLA-Simulation)
 
 </div>
