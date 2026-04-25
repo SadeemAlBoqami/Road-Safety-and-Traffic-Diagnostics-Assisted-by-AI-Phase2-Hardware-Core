@@ -132,25 +132,12 @@ linear.x  →  base forward/backward speed (applied equally to all motors)
 angular.z →  left/right differential (subtracted from left, added to right)
 ```
 
-### `safety_stop.py`
-
-Subscribes to `/risk_prediction`. When `risk_level > 0.75`, it immediately sets all motor PWM to zero and publishes a `/safety_event` message. Normal operation resumes only when risk drops below threshold.
-
----
 
 ## 📷 Camera — IMX219-77
 
 ### What the Code Does
 
-`camera_node.py` captures frames from the **IMX219-77** via the Jetson's **CSI-2** interface using GStreamer, converts them to ROS 2 `sensor_msgs/Image` messages, and publishes them on `/camera/image_raw`.
-
-### Capture Pipeline (GStreamer)
-
-```
-nvarguscamerasrc  →  nvvidconv  →  video/x-raw (BGR, 800×600)  →  appsink
-```
-
-GStreamer is used rather than standard `cv2.VideoCapture()` to access the Jetson's hardware ISP, which handles noise reduction and white balance for the IMX219 sensor.
+`camera_reader_node.py` captures frames from the **IMX219-77** via the Jetson's **CSI-2** interface using GStreamer, converts them to ROS 2 `sensor_msgs/Image` messages, and publishes them on `/camera/image_raw`.
 
 ### Published Topic
 
@@ -168,7 +155,7 @@ GStreamer is used rather than standard `cv2.VideoCapture()` to access the Jetson
 
 ### What the Code Does
 
-`lidar_node.py` communicates with the **RPLiDAR A1M8** over USB serial (`/dev/ttyUSB0`) using the RPLiDAR Python SDK, and publishes 360° scan data as a ROS 2 `sensor_msgs/LaserScan` message.
+`lidar_processor_node.py` communicates with the **RPLiDAR A1M8** over USB serial (`/dev/ttyUSB0`) using the RPLiDAR Python SDK, and publishes 360° scan data as a ROS 2 `sensor_msgs/LaserScan` message.
 
 ### Sensor Specifications (as used)
 
