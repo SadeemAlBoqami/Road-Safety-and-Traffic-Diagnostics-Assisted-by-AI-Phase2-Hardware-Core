@@ -61,38 +61,33 @@ This repository is a **technical record** of the hardware deployment work comple
 ## 📁 Repository Structure
 
 ```
-Jetson-Hardware-Core/
+Road-Safety-Hardware-Core/
 │
-├── 📂 firmware/                        # أكواد الـ ESP32 (Embedded Layer)
-│   ├── 📂 RSU_Station/                 # وحدة الطريق: إرسال تنبيهات V2X
-│   └── 📂 OBU_Vehicle/                 # وحدة المركبة: استقبال البيانات وتحويلها لـ ROS 2
+├── 📂 docs/                        # Project documentation & charts
+├── 📂 firmware/                    # ESP32 firmware code
+│   ├── 📂 OBU/                     # V2X vehicle receiver
+│   └── 📂 RSU/                     # V2X infrastructure transmitter
 │
-├── 📂 ros2_ws/                         # بيئة العمل الأساسية في الجيتسون
-│   └── 📂 src/
-│       │
-│       ├── 📦 jetson_hardware_core/    # حزمة الذكاء الاصطناعي والإدراك (الأساسية)
-│       │   ├── 📂 launch/              # ملفات التشغيل المتكاملة (integrated_system.launch.py)
-│       │   └── 📂 jetson_hardware_core/ # العقد البرمجية (Core Logic)
-│       │       ├── camera_reader_node.py   # جلب بث الكاميرا
-│       │       ├── perception_node.py      # معالجة YOLOv8-TRT
-│       │       ├── prediction_node.py      # توقع المسار باستخدام LSTM
-│       │       ├── risk_assessment_node.py # حساب TTC وتقييم الخطر
-│       │       ├── display_node.py         # شاشة التنبيه المتطورة (HMI)
-│       │       └── collision_decision_node.py # اتخاذ القرار النهائي
-│       │
-│       ├── 📦 v2x_diagnostics/         # حزمة التواصل والتشخيص اللاسلكي
-│       │   └── v2x_manager.py          # إدارة رسائل V2X المستلمة
-│       │
-│       └── 📦 manual_control/          # حزمة التحكم البشري (المستقبلية)
-│           └── keyboard_node.py        # ترجمة أزرار الكيبورد إلى أوامر حركة (/cmd_vel)
+├── 📂 models/                      # Optimized AI weights 
+│   ├── 🧠 best.engine              # YOLOv8 detection engine 
+│   └── 📈 lstm_model_v4.engine     # LSTM prediction engine 
 │
-├── 📂 models/                          # أوزان النماذج (لا يتم تتبعها بـ Git لكبر حجمها)
-│   ├── yolov8_n_safety.engine          # نموذج YOLO المحول لـ TensorRT
-│   └── lstm_model_v4.pt                # نموذج التنبؤ المدرب
-│
-├── 📂 docs/                            # التوثيق، صور الـ RQT Graph، والمخططات الهندسية
-├── requirements_jetson.txt             # المكتبات المطلوبة (OpenCV, PyTorch, TensorRT)
-└── README.md                           # الواجهة الاحترافية للمشروع وشرح التشغيل
+└── 📂 src/                         # ROS 2 workspace 
+    │
+    ├── 📦 jetson_hardware_core/    # Core AI logic 
+    │   ├── 📂 launch/              # System launch scripts
+    │   └── 📂 jetson_hardware_core/# ROS 2 nodes 
+    │       ├── camera_reader.py    # Camera acquisition 
+    │       ├── perception_node.py  # YOLOv8 inference 
+    │       ├── lidar_processor.py  # LiDAR processing 
+    │       ├── sensor_fusion.py    # Multi-modal fusion
+    │       ├── prediction_node.py  # LSTM trajectory prediction 
+    │       ├── risk_assessment.py  # Risk/TTC scoring
+    │       ├── collision_decision.py # Safety arbitration
+    │       └── display_node.py     # HMI dashboard UI
+    │
+    └── 📦 v2x_diagnostics/         # V2X communication bridge
+        └── v2x_manager.py          # V2X message decoding
 ```
 
 ---
@@ -289,7 +284,7 @@ RQT RQT RQT RQT RQT RQT RQT RQT
 ```
 3S Li-Po (11.1V, XT60)
          │
-         ├──── XT60 Parallel Splitter
+         └──── XT60 Parallel Splitter
                        │
                        ├──── Waveshare Motor Driver HAT  ← 11.1V direct
                        │     (TB6612FNG handles motor voltage directly)
