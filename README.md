@@ -135,6 +135,17 @@ Handles real-time system behavior:
   * Robot motion controlled via **L298N Motor Driver**
 
 ---
+<div align="center">
+  <img width="1076" alt="PreCrash AI System Block Diagram" src="https://github.com/user-attachments/assets/852b50db-d96f-4ef0-be14-3decc97b4877" />
+  
+  <br>
+  
+  <p>
+    <b>Figure 1:</b> <i>Detailed System Block Diagram illustrating the interaction between Sensing, Perception, and Actuation layers within the PreCrash AI framework.</i>
+  </p>
+</div>
+
+---
 
 ## ⚙️ Hardware Deployment
 
