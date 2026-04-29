@@ -3,17 +3,18 @@
 <img src="https://img.shields.io/badge/Jetson_Orin_Nano-8GB-76B900?style=for-the-badge&logo=nvidia&logoColor=white"/>
 <img src="https://img.shields.io/badge/ROS2-Humble-22314E?style=for-the-badge&logo=ros&logoColor=white"/>
 <img src="https://img.shields.io/badge/TensorRT-Optimized-76B900?style=for-the-badge&logo=nvidia&logoColor=white"/>
+<img src="https://img.shields.io/badge/L298N-Motor_Driver-red?style=for-the-badge&logo=micro-dot-info&logoColor=white"/>
 <img src="https://img.shields.io/badge/RPLiDAR-A1M8-informational?style=for-the-badge&logo=linode&logoColor=white"/>
-<img src="https://img.shields.io/badge/IMX219-77_Camera-blueviolet?style=for-the-badge&logo=github&logoColor=white"/>
+<img src="https://img.shields.io/badge/IMX219-77_Camera-blueviolet?style=for-the-badge&logo=camera&logoColor=white"/>
 
 <br><br>
 
 # 🤖 PreCrash AI - Road Safety and Traffic Diagnostics Assisted by AI
-## Hardware Deployment — Jetson-Based Mobile Robot
 
-> **Graduation Project Documentation**  
-> This repository documents the real-world deployment phase of our Sim-to-Real pipeline.  
-> It contains all code running on the physical robot: motor control, sensing, sensor fusion, and model inference.
+## Real-World Deployment — Intelligent Edge-Based Safety System
+
+> **Graduation Project Documentation**
+> A real-time embedded system that **detects, tracks, and predicts collision risks** using multi-sensor perception and edge AI.
 
 <br>
 
@@ -23,38 +24,198 @@
 
 </div>
 
+---
+
+## 🌍 System Overview
+
+This project implements a **real-time road safety diagnostic system** deployed on a physical robot platform.
+
+The system continuously:
+
+* **Perceives the environment** using camera and LiDAR
+* **Understands objects and distances** through sensor fusion
+* **Tracks dynamic agents (vehicles/pedestrians)**
+* **Predicts future trajectories** using deep learning
+* **Evaluates collision risk** using Time-To-Collision (TTC)
+
+Unlike reactive systems, this architecture is **predictive** — it estimates what will happen next, not just what is happening now. 
 
 ---
 
+## 🧠 System Architecture (Layered)
 
-## 📌 What This Repository Documents
-
-This repository is a **technical record** of the hardware deployment work completed during Phase 2 of the graduation project. It contains all code that runs on the physical robot:
-
-- ✅ Motor control via Waveshare Motor Driver HAT (I2C / PCA9685 + TB6612FNG)
-- ✅ Camera stream acquisition from IMX219-77 (CSI interface)
-- ✅ LiDAR data acquisition from RPLiDAR A1M8 (USB / serial)
-- ✅ Sensor fusion node merging camera and LiDAR data
-- ✅ Model inference pipeline (YOLOv8 + LSTM) running on Jetson Orin Nano
-
-> This code was written specifically for our robot's hardware configuration. It is not a general library.
+The system follows a structured pipeline similar to real autonomous driving stacks:
 
 ---
 
-## 🔩 Hardware Platform
+### 1️⃣ Sensing Layer
 
-| Component | Part | Interface |
-|-----------|------|-----------|
-| **Compute** | NVIDIA Jetson Orin Nano Dev Kit (8GB) | — |
-| **Chassis** | 4WD Aluminum Robot Chassis Kit | — |
-| **Motor Controller** | Waveshare Motor Driver HAT (PCA9685 + TB6612FNG) | I2C |
-| **Camera** | IMX219-77 Camera Module | CSI-2 |
-| **LiDAR** | RPLiDAR A1M8 | USB |
-| **Wi-Fi** | Intel AX210 M.2 Card | M.2 (PCIe) |
-| **Storage** | MicroSD 128GB A2 | — |
-| **Display** | 7" HDMI Capacitive Touch Screen | DP → HDMI |
-| **Battery** | 3S Li-Po 11.1V ≥ 2200mAh (XT60) | — |
-| **Buck Converter** | LM2596 (11.1V → 5V) | — |
+Responsible for raw data acquisition:
+
+* 📷 Camera → RGB frames
+* 📡 LiDAR → Distance measurements
+* 📍 GNSS/IMU → Ego-state (position, velocity)
+* 🌐 V2X → External vehicle data (JSON-based messages)
+
+---
+
+### 2️⃣ Perception Layer
+
+Transforms raw data into meaningful information:
+
+* **Image Preprocessing** → resizing + normalization
+* **YOLOv8 (TensorRT)** → object detection (cars, pedestrians)
+* **V2X Decoder** → extracts remote vehicle states
+
+This stage converts raw sensor streams into structured data (bounding boxes + coordinates). 
+
+---
+
+### 3️⃣ Fusion & Tracking Layer
+
+This is the core intelligence bridge.
+
+#### 🔗 Sensor Fusion
+
+* Projects LiDAR points into the camera frame using calibration matrices
+* Matches LiDAR depth with detected objects using IOU
+* Computes accurate object distance
+
+Conceptually:
+
+* If LiDAR points fall inside a YOLO bounding box → same object
+* Average depth → real-world distance
+
+#### 🌐 V2X Integration
+
+* Converts GPS (Lat, Long) → local (X, Y) coordinates
+* Uses **Kalman Filter** to reduce noise and unify measurements
+
+#### 🎯 Tracking
+
+* Assigns unique IDs to objects
+* Builds motion history for prediction
+
+---
+
+### 4️⃣ Prediction & Risk Analysis
+
+This layer makes the system proactive:
+
+* **LSTM Model**
+
+  * Input: last ~10 frames of motion
+  * Output: predicted trajectory (3–5 seconds ahead)
+
+* **Risk Engine**
+
+  * Computes **Time-To-Collision (TTC)**
+  * Compares ego trajectory vs surrounding vehicles
+
+This is where the system shifts from perception → decision intelligence. 
+
+---
+
+### 5️⃣ Decision & Actuation Layer
+
+Handles real-time system behavior:
+
+* **System Manager**
+
+  * Adaptive frame skipping (resource optimization)
+  * Task prioritization (V2X highest priority)
+
+* **HMI**
+
+  * Displays alerts based on risk level
+
+* **Actuation**
+
+  * Simulated **Autonomous Emergency Braking (AEB)**
+  * Robot motion controlled via **L298N Motor Driver**
+
+---
+
+## ⚙️ Hardware Deployment
+
+| Component          | Role                               |
+| ------------------ | ---------------------------------- |
+| Jetson Orin Nano   | Edge AI processing (GPU inference) |
+| L298N Motor Driver | Controls motor speed & direction   |
+| IMX219 Camera      | Visual perception                  |
+| RPLiDAR A1M8       | Distance sensing                   |
+| ESP32 / Wi-Fi      | V2X communication                  |
+| Li-Po Battery      | Power system                       |
+
+---
+
+## ⚙️ Locomotion — L298N Integration
+
+The robot uses a **differential drive system** controlled via the **L298N Dual H-Bridge**.
+
+* PWM controls motor speed
+* Direction controlled via IN1–IN4 logic
+* ROS2 `/cmd_vel` → translated into wheel velocities
+
+Real-world adaptation included:
+
+* Compensating for motor non-linearity
+* Handling friction and voltage drops
+
+---
+
+## 📡 V2X Communication (IoV Emulation)
+
+A lightweight **Vehicle-to-Everything (V2X)** system is implemented using:
+
+* UDP Broadcast over Wi-Fi
+* JSON-based messages simulating **BSM (Basic Safety Message)**
+
+Message structure includes:
+
+* `senderID`
+* `timestamp`
+* `eventCode`
+* `location`
+* `priority`
+
+This acts as a **behavioral emulation of DSRC (802.11p)** using accessible hardware. 
+
+---
+
+## 🧠 AI Models
+
+### 🔍 YOLOv8 (Detection)
+
+* Trained on ~15,000 simulated images
+* Detects vehicles and pedestrians
+* Optimized using **TensorRT FP16**
+
+### 📈 LSTM (Prediction)
+
+* Trained on ~300,000 trajectory frames
+* Predicts motion sequences
+* Enables early risk detection
+
+---
+
+## 🌉 Sim-to-Real Transition
+
+Key engineering challenges solved:
+
+| Simulation         | Reality              |
+| ------------------ | -------------------- |
+| Perfect sensors    | Noisy LiDAR + camera |
+| Ideal motion       | Motor drift & delay  |
+| Synchronous data   | Asynchronous streams |
+| Global coordinates | Robot-centric frame  |
+
+Solutions:
+
+* Kalman filtering
+* ROS2 message synchronization
+* PWM calibration
+* Sensor fusion redesign
 
 ---
 
@@ -63,239 +224,11 @@ This repository is a **technical record** of the hardware deployment work comple
 ```
 Road-Safety-Hardware-Core/
 │
-├── 📂 docs/                        # Project documentation & charts
-├── 📂 firmware/                    # ESP32 firmware code
-│   ├── 📂 OBU/                     # V2X vehicle receiver
-│   └── 📂 RSU/                     # V2X infrastructure transmitter
-│
-├── 📂 models/                      # Optimized AI weights 
-│   ├── 🧠 best.engine              # YOLOv8 detection engine 
-│   └── 📈 lstm_model_v4.engine     # LSTM prediction engine 
-│
-└── 📂 src/                         # ROS 2 workspace 
-    │
-    ├── 📦 jetson_hardware_core/    # Core AI logic 
-    │   ├── 📂 launch/              # System launch scripts
-    │   └── 📂 jetson_hardware_core/# ROS 2 nodes 
-    │       ├── camera_reader.py    # Camera acquisition 
-    │       ├── perception_node.py  # YOLOv8 inference 
-    │       ├── lidar_processor.py  # LiDAR processing 
-    │       ├── sensor_fusion.py    # Multi-modal fusion
-    │       ├── prediction_node.py  # LSTM trajectory prediction 
-    │       ├── risk_assessment.py  # Risk/TTC scoring
-    │       ├── collision_decision.py # Safety arbitration
-    │       └── display_node.py     # HMI dashboard UI
-    │
-    └── 📦 v2x_diagnostics/         # V2X communication bridge
-        └── v2x_manager.py          # V2X message decoding
+├── docs/
+├── firmware/   (ESP32 V2X)
+├── models/     (TensorRT engines)
+└── src/        (ROS2 nodes)
 ```
-
----
-
-## ⚙️ Motor Control — Waveshare HAT
-
-### What the Code Does
-
-`motor_driver.py` implements low-level I2C communication with the **Waveshare Motor Driver HAT**, which uses a **PCA9685** PWM controller paired with **TB6612FNG** H-bridge drivers. It exposes a simple speed/direction API used by the ROS 2 control node.
-
-### I2C Configuration
-
-```
-Jetson 40-pin Header  →  Waveshare HAT
-─────────────────────────────────────
-Pin 3  (SDA, I2C1)   →  SDA
-Pin 5  (SCL, I2C1)   →  SCL
-Pin 4  (5V)          →  VCC
-Pin 6  (GND)         →  GND
-
-PCA9685 I2C Address: 0x40 (default, no address jumpers changed)
-PWM Frequency:       100 Hz (set in driver initialization)
-```
-
-### Motor Channel Mapping
-
-```
-PCA9685 Channels → TB6612FNG → Motors
-──────────────────────────────────────
-Ch 0, 1, 2   →  Motor A (Front-Left)
-Ch 3, 4, 5   →  Motor B (Front-Right)
-Ch 6, 7, 8   →  Motor C (Rear-Left)
-Ch 9, 10, 11 →  Motor D (Rear-Right)
-```
-
-### `cmd_vel_subscriber.py`
-
-Subscribes to `/cmd_vel` (ROS 2 `geometry_msgs/Twist`) and converts linear/angular velocity commands into differential PWM values for the four motors:
-
-```
-linear.x  →  base forward/backward speed (applied equally to all motors)
-angular.z →  left/right differential (subtracted from left, added to right)
-```
-
-
-## 📷 Camera — IMX219-77
-
-### What the Code Does
-
-`camera_reader_node.py` captures frames from the **IMX219-77** via the Jetson's **CSI-2** interface using GStreamer, converts them to ROS 2 `sensor_msgs/Image` messages, and publishes them on `/camera/image_raw`.
-
-### Published Topic
-
-```
-/camera/image_raw    [sensor_msgs/Image]
-  encoding: bgr8
-  width:    800
-  height:   600
-  frame_id: camera_link
-```
-
----
-
-## 📡 LiDAR — RPLiDAR A1M8
-
-### What the Code Does
-
-`lidar_processor_node.py` communicates with the **RPLiDAR A1M8** over USB serial (`/dev/ttyUSB0`) using the RPLiDAR Python SDK, and publishes 360° scan data as a ROS 2 `sensor_msgs/LaserScan` message.
-
-### Sensor Specifications (as used)
-
-| Parameter | Value |
-|-----------|-------|
-| Scan rate | 10 Hz |
-| Angular resolution | ~1° |
-| Range | 0.15 m – 12 m |
-| Output | 2D planar scan (single horizontal plane) |
-
-### Published Topic
-
-```
-/scan    [sensor_msgs/LaserScan]
-  frame_id:    laser_link
-  angle_min:   -π
-  angle_max:    π
-  range_min:    0.15
-  range_max:   12.0
-```
-
-> **Important:** The RPLiDAR A1M8 produces a **2D scan only** — no elevation data. This is a known difference from the 3D LiDAR used in CARLA simulation. The sensor fusion node handles this discrepancy (see below).
-
----
-
-## 🔀 Sensor Fusion
-
-### What the Code Does
-
-`fusion_node.py` aligns **camera detections** (bounding boxes from YOLOv8) with **LiDAR scan data** to associate each detected object with an estimated range. The output is a list of tracked objects with both visual class labels and estimated distances.
-
-### Fusion Logic
-
-1. Subscribe to `/detections` (bounding boxes) and `/scan` (LiDAR ranges)
-2. For each bounding box, compute the angular sector it occupies in the camera frame
-3. Map that angular sector to the LiDAR's scan angle using the known extrinsic offset between camera and LiDAR mounts
-4. Extract the minimum range within that angular sector as the object's distance estimate
-5. Publish enriched object list to `/fused_objects`
-
-### Coordinate Alignment
-
-All transforms follow **ROS REP 103** conventions (X forward, Y left, Z up, units in meters). The static transform between `camera_link` and `laser_link` is defined based on physical mount measurements on the robot chassis.
-
-### Known Limitation
-
-Because the RPLiDAR A1M8 scans a single horizontal plane, objects that are taller or shorter than the scan height (e.g., a pedestrian's torso visible in camera but legs occluded) may produce no corresponding LiDAR return. In these cases, the fusion node falls back to camera-only detection without a range estimate.
-
----
-
-## 🧠 Model Inference on Jetson
-
-### YOLOv8 — `yolo_node.py`
-
-Runs the **TensorRT-optimized YOLOv8** engine on every incoming camera frame. The `.engine` file was compiled on the Jetson itself from the ONNX weights exported in the simulation phase (TensorRT engines are device-specific).
-
-```
-Input:   /camera/image_raw   [800×600 BGR]
-           │
-         Resize + normalize → (640×640, float32, normalized)
-           │
-         TensorRT Engine (FP16)
-           │
-         NMS post-processing
-           │
-Output:  /detections   [vision_msgs/Detection2DArray]
-```
-
-**Achieved inference time:** *(to be filled)*
-
-### LSTM — `lstm_node.py`
-
-For each tracked object published in `/fused_objects`, the LSTM node maintains a **rolling buffer of 10 kinematic states** (x, y, vx, vy, heading, speed). Once the buffer is full, it runs inference and predicts the next 5 positions.
-
-```
-Buffer (10 frames × 6 features)
-           │
-         LSTM (2 layers, hidden=128)
-           │
-         5 predicted (x, y) positions
-           │
-Output:  /risk_prediction   [custom_msgs/RiskLevel]
-           risk_level:  0.0 – 1.0
-           predicted_ttc: seconds
-```
-
-Risk level is computed from the predicted trajectory's closest approach distance to the robot's projected path.
-
-### `alert_node.py`
-
-Subscribes to `/risk_prediction` and triggers alerts based on threshold:
-
-| Risk Level | Action |
-|------------|--------|
-| < 0.4 | No action |
-| 0.4 – 0.74 | Warning displayed on screen |
-| ≥ 0.75 | Visual + audio alert; safety stop triggered |
-
----
-
-## 🔗 ROS 2 System Overview
-
-```
-RQT RQT RQT RQT RQT RQT RQT RQT
-RQT RQT RQT RQT RQT RQT RQT RQT
-RQT RQT RQT RQT RQT RQT RQT RQT
-RQT RQT RQT RQT RQT RQT RQT RQT 
-```
-
----
-
-## ⚡ Power Architecture
-
-```
-3S Li-Po (11.1V, XT60)
-         │
-         └──── XT60 Parallel Splitter
-                       │
-                       ├──── Waveshare Motor Driver HAT  ← 11.1V direct
-                       │     (TB6612FNG handles motor voltage directly)
-                       │
-                       └──── LM2596 Buck Converter  (set to 8.0V)
-                                       │
-                             Jetson Orin Nano (5V / 4A input)
-```
-
-> The LM2596 output voltage was set and verified with a multimeter before first connection to the Jetson. The Jetson Orin Nano requires a stable **5V ± 0.25V** input; operation outside this range risks permanent damage to the SoM.
-
----
-
-## 🌉 Sim-to-Real Adaptations
-
-Differences between the CARLA simulation environment and the physical robot required the following adaptations in this codebase:
-
-| Sim Assumption | Real Condition | Adaptation in This Repo |
-|----------------|---------------|------------------------|
-| 3D LiDAR (32-channel) | RPLiDAR A1M8 (2D, single plane) | Fusion node uses angular sector matching instead of 3D projection |
-| Noiseless camera | IMX219 with real-world noise + lighting variation | GStreamer ISP pipeline used; no additional filtering added |
-| Synchronous simulator tick | Asynchronous real-world sensor streams | ROS 2 message timestamps used for synchronization |
-| CARLA world coordinates (absolute) | Robot-centric relative coordinates | REP 103 TF tree used; all positions relative to `base_link` |
-| Infinite battery / compute | 11.1V Li-Po + Jetson Orin Nano constraints | TensorRT FP16 used; non-essential logging disabled at runtime |
 
 ---
 
