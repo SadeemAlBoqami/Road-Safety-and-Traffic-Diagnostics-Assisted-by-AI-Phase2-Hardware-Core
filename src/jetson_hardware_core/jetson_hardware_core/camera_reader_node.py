@@ -1,9 +1,11 @@
-#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
+import os
+os.environ.pop('DISPLAY', None)  # إخفاء الشاشة عن مكتبة الكاميرا لمنع انهيار GStreamer
+
 
 class CameraReaderNode(Node):
     def __init__(self):
